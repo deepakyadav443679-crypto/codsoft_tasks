@@ -1,568 +1,485 @@
-// ==========================================
-// QUIZ DATA
-// ==========================================
-
-const questions = [
-
-    {
-        question:
-            "Which language is mainly used to structure a web page?",
-
-        options: [
-            "HTML",
-            "CSS",
-            "JavaScript",
-            "SQL"
-        ],
-
-        answer: 0
-    },
+/* ==========================================
+   SECUREBANK ATM DEMO
+   Demo PIN = 9755
+========================================== */
 
 
-    {
-        question:
-            "Which language is used to style a web page?",
+const CORRECT_PIN = "9755";
 
-        options: [
-            "HTML",
-            "CSS",
-            "JavaScript",
-            "Java"
-        ],
+let enteredPin = "";
 
-        answer: 1
-    },
+let balance = 25000;
+
+let transactions = [];
 
 
-    {
-        question:
-            "Which keyword is used to declare a variable in JavaScript?",
+// ===============================
+// PIN
+// ===============================
 
-        options: [
-            "var",
-            "int",
-            "string",
-            "define"
-        ],
+function enterPin(number) {
 
-        answer: 0
-    },
-
-
-    {
-        question:
-            "Which language is used to communicate with a database?",
-
-        options: [
-            "HTML",
-            "CSS",
-            "SQL",
-            "XML"
-        ],
-
-        answer: 2
-    },
-
-
-    {
-        question:
-            "Which symbol is used for an ID selector in CSS?",
-
-        options: [
-            ".",
-            "#",
-            "*",
-            "@"
-        ],
-
-        answer: 1
-    },
-
-
-    {
-        question:
-            "Which HTML tag is used to create a hyperlink?",
-
-        options: [
-            "<link>",
-            "<a>",
-            "<href>",
-            "<url>"
-        ],
-
-        answer: 1
-    },
-
-
-    {
-        question:
-            "Which method is used to print output in the browser console?",
-
-        options: [
-            "console.log()",
-            "print()",
-            "display()",
-            "show()"
-        ],
-
-        answer: 0
-    },
-
-
-    {
-        question:
-            "Which CSS property changes the text color?",
-
-        options: [
-            "font-color",
-            "text-color",
-            "color",
-            "background"
-        ],
-
-        answer: 2
-    },
-
-
-    {
-        question:
-            "Which data structure follows the LIFO principle?",
-
-        options: [
-            "Queue",
-            "Stack",
-            "Array",
-            "Tree"
-        ],
-
-        answer: 1
-    },
-
-
-    {
-        question:
-            "Which operator is used for strict equality in JavaScript?",
-
-        options: [
-            "=",
-            "==",
-            "===",
-            "!="
-        ],
-
-        answer: 2
+    if (enteredPin.length >= 4) {
+        return;
     }
 
-];
+    enteredPin += number;
 
-
-// ==========================================
-// VARIABLES
-// ==========================================
-
-let currentQuestion = 0;
-
-let score = 0;
-
-let wrongAnswers = 0;
-
-let timeLeft = 15;
-
-let timer;
-
-const totalQuestions = questions.length;
-
-const totalTime = 15;
-
-
-// ==========================================
-// HTML ELEMENTS
-// ==========================================
-
-const questionElement =
-    document.getElementById("question");
-
-const optionsContainer =
-    document.getElementById("options-container");
-
-const nextButton =
-    document.getElementById("next-btn");
-
-const timerElement =
-    document.getElementById("timer");
-
-const questionNumber =
-    document.getElementById("question-number");
-
-const progress =
-    document.getElementById("progress");
-
-const progressText =
-    document.getElementById("progress-text");
-
-const timerCircle =
-    document.getElementById("timer-circle");
-
-const resultContainer =
-    document.getElementById("result-container");
-
-const app =
-    document.querySelector(".app");
-
-
-// ==========================================
-// LOAD QUESTION
-// ==========================================
-
-function loadQuestion() {
-
-    clearInterval(timer);
-
-    timeLeft = totalTime;
-
-    timerElement.textContent = timeLeft;
-
-    updateTimerCircle();
-
-    const question =
-        questions[currentQuestion];
-
-
-    // Question number
-
-    let questionNo =
-        String(currentQuestion + 1)
-        .padStart(2, "0");
-
-    questionNumber.textContent =
-        `${questionNo} / ${totalQuestions}`;
-
-
-    // Question
-
-    questionElement.textContent =
-        question.question;
-
-
-    // Progress
-
-    let percentage =
-        ((currentQuestion + 1) / totalQuestions) * 100;
-
-    progress.style.width =
-        percentage + "%";
-
-    progressText.textContent =
-        percentage + "%";
-
-
-    // Clear old options
-
-    optionsContainer.innerHTML = "";
-
-
-    // Create options
-
-    question.options.forEach(
-        (option, index) => {
-
-            const button =
-                document.createElement("button");
-
-            button.classList.add("option");
-
-            button.innerHTML = `
-
-                <span class="option-letter">
-                    ${String.fromCharCode(65 + index)}
-                </span>
-
-                <span>
-                    ${option}
-                </span>
-
-            `;
-
-            button.addEventListener(
-                "click",
-                () => selectAnswer(button, index)
-            );
-
-            optionsContainer.appendChild(button);
-        }
-    );
-
-
-    startTimer();
+    updatePinDots();
 }
 
 
-// ==========================================
-// SELECT ANSWER
-// ==========================================
+function updatePinDots() {
 
-function selectAnswer(button, selectedIndex) {
+    for (let i = 1; i <= 4; i++) {
 
-    clearInterval(timer);
+        const dot = document.getElementById("dot" + i);
 
-    const buttons =
-        document.querySelectorAll(".option");
+        if (i <= enteredPin.length) {
+            dot.classList.add("active");
+        } else {
+            dot.classList.remove("active");
+        }
+    }
+}
 
-    const correctAnswer =
-        questions[currentQuestion].answer;
+
+function clearPin() {
+
+    enteredPin = "";
+
+    updatePinDots();
+
+    document.getElementById("pinMessage").textContent = "";
+}
 
 
-    // Disable buttons
+function verifyPin() {
 
-    buttons.forEach(btn => {
+    const message = document.getElementById("pinMessage");
 
-        btn.disabled = true;
+    if (enteredPin.length !== 4) {
+
+        message.textContent = "Please enter 4-digit PIN.";
+
+        return;
+    }
+
+
+    if (enteredPin === CORRECT_PIN) {
+
+        message.style.color = "#4ade80";
+
+        message.textContent = "PIN verified successfully.";
+
+        setTimeout(() => {
+
+            document.getElementById("pinScreen")
+                .classList.remove("active");
+
+            document.getElementById("dashboard")
+                .classList.add("active");
+
+        }, 500);
+
+    } else {
+
+        message.textContent = "Incorrect PIN. Try again.";
+
+        enteredPin = "";
+
+        updatePinDots();
+    }
+}
+
+
+// ===============================
+// SCREEN CONTROL
+// ===============================
+
+function showScreen(screenId) {
+
+    document.querySelectorAll(".screen")
+        .forEach(screen => {
+
+            screen.classList.remove("active");
+
+        });
+
+    document.getElementById(screenId)
+        .classList.add("active");
+}
+
+
+function showWithdraw() {
+
+    showScreen("withdrawScreen");
+
+    document.getElementById("withdrawAmount").value = "";
+
+    document.getElementById("withdrawMessage").textContent = "";
+}
+
+
+function showDeposit() {
+
+    showScreen("depositScreen");
+
+    document.getElementById("depositAmount").value = "";
+
+    document.getElementById("depositMessage").textContent = "";
+}
+
+
+function showHistory() {
+
+    showScreen("historyScreen");
+
+    renderHistory();
+}
+
+
+function backDashboard() {
+
+    showScreen("dashboard");
+
+    updateBalance();
+}
+
+
+// ===============================
+// BALANCE
+// ===============================
+
+function updateBalance() {
+
+    document.getElementById("balance").textContent =
+        balance.toLocaleString("en-IN");
+}
+
+
+// ===============================
+// WITHDRAW
+// ===============================
+
+function setWithdraw(amount) {
+
+    document.getElementById("withdrawAmount").value = amount;
+}
+
+
+function confirmWithdraw() {
+
+    const input =
+        document.getElementById("withdrawAmount");
+
+    const message =
+        document.getElementById("withdrawMessage");
+
+    const amount = Number(input.value);
+
+
+    if (!amount || amount <= 0) {
+
+        message.textContent =
+            "Please enter a valid amount.";
+
+        return;
+    }
+
+
+    if (amount < 100) {
+
+        message.textContent =
+            "Minimum withdrawal amount is ₹100.";
+
+        return;
+    }
+
+
+    if (amount > balance) {
+
+        message.textContent =
+            "Insufficient balance.";
+
+        return;
+    }
+
+
+    balance -= amount;
+
+
+    addTransaction(
+        "Withdraw Money",
+        amount,
+        "withdraw"
+    );
+
+
+    updateBalance();
+
+
+    showSuccess(
+        "Withdrawal Successful",
+        `₹${amount.toLocaleString("en-IN")} has been withdrawn successfully.`
+    );
+}
+
+
+// ===============================
+// DEPOSIT
+// ===============================
+
+function setDeposit(amount) {
+
+    document.getElementById("depositAmount").value =
+        amount;
+}
+
+
+function confirmDeposit() {
+
+    const input =
+        document.getElementById("depositAmount");
+
+    const message =
+        document.getElementById("depositMessage");
+
+    const amount = Number(input.value);
+
+
+    if (!amount || amount <= 0) {
+
+        message.textContent =
+            "Please enter a valid amount.";
+
+        return;
+    }
+
+
+    if (amount < 100) {
+
+        message.textContent =
+            "Minimum deposit amount is ₹100.";
+
+        return;
+    }
+
+
+    balance += amount;
+
+
+    addTransaction(
+        "Deposit Money",
+        amount,
+        "deposit"
+    );
+
+
+    updateBalance();
+
+
+    showSuccess(
+        "Deposit Successful",
+        `₹${amount.toLocaleString("en-IN")} has been added to your account.`
+    );
+}
+
+
+// ===============================
+// TRANSACTION HISTORY
+// ===============================
+
+function addTransaction(type, amount, action) {
+
+    transactions.unshift({
+
+        type: type,
+
+        amount: amount,
+
+        action: action,
+
+        time: new Date().toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+
+    });
+}
+
+
+function renderHistory() {
+
+    const list =
+        document.getElementById("historyList");
+
+    list.innerHTML = "";
+
+
+    if (transactions.length === 0) {
+
+        list.innerHTML = `
+            <div class="transaction">
+                <div>
+                    <strong>No transactions yet</strong>
+                    <span>Your recent transactions will appear here.</span>
+                </div>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    transactions.forEach(transaction => {
+
+        const sign =
+            transaction.action === "deposit"
+                ? "+"
+                : "-";
+
+
+        const color =
+            transaction.action === "deposit"
+                ? "#4ade80"
+                : "#f87171";
+
+
+        list.innerHTML += `
+
+            <div class="transaction">
+
+                <div>
+
+                    <strong>
+                        ${transaction.type}
+                    </strong>
+
+                    <span>
+                        Today • ${transaction.time}
+                    </span>
+
+                </div>
+
+                <b style="color:${color}">
+                    ${sign}₹${transaction.amount.toLocaleString("en-IN")}
+                </b>
+
+            </div>
+
+        `;
+    });
+}
+
+
+// ===============================
+// CHECK BALANCE
+// ===============================
+
+function checkBalance() {
+
+    showSuccess(
+        "Current Balance",
+        `Your available balance is ₹${balance.toLocaleString("en-IN")}.`
+    );
+}
+
+
+// ===============================
+// SUCCESS MODAL
+// ===============================
+
+function showSuccess(title, text) {
+
+    document.getElementById("successTitle")
+        .textContent = title;
+
+    document.getElementById("successText")
+        .textContent = text;
+
+    document.getElementById("successModal")
+        .classList.add("show");
+}
+
+
+function closeSuccess() {
+
+    document.getElementById("successModal")
+        .classList.remove("show");
+
+    backDashboard();
+}
+
+
+// ===============================
+// LOGOUT
+// ===============================
+
+function logout() {
+
+    enteredPin = "";
+
+    updatePinDots();
+
+    showScreen("pinScreen");
+
+    document.getElementById("pinMessage")
+        .textContent = "";
+}
+
+
+// ===============================
+// LANGUAGE
+// ===============================
+
+document
+    .getElementById("language")
+    .addEventListener("change", function () {
+
+        if (this.value === "hi") {
+
+            document.getElementById("welcomeText")
+                .textContent = "SecureBank में आपका स्वागत है";
+
+            document.getElementById("pinText")
+                .textContent = "जारी रखने के लिए अपना 4-अंकीय PIN डालें";
+
+        } else {
+
+            document.getElementById("welcomeText")
+                .textContent = "Welcome to SecureBank";
+
+            document.getElementById("pinText")
+                .textContent = "Enter your 4-digit ATM PIN to continue";
+        }
 
     });
 
 
-    // Correct answer
+// Dashboard language selector
 
-    if (selectedIndex === correctAnswer) {
+document
+    .getElementById("dashboardLanguage")
+    .addEventListener("change", function () {
 
-        button.classList.add("correct");
+        const title =
+            document.getElementById("hello");
 
-        score++;
+        if (this.value === "hi") {
 
-    }
+            title.textContent =
+                "स्वागत है, Deepak 👋";
 
-    // Wrong answer
+        } else {
 
-    else {
-
-        button.classList.add("wrong");
-
-        wrongAnswers++;
-
-
-        // Show correct answer
-
-        buttons[correctAnswer]
-            .classList.add("correct");
-    }
-}
-
-
-// ==========================================
-// TIMER
-// ==========================================
-
-function startTimer() {
-
-    timer =
-        setInterval(() => {
-
-            timeLeft--;
-
-            timerElement.textContent =
-                timeLeft;
-
-            updateTimerCircle();
-
-
-            if (timeLeft <= 5) {
-
-                timerCircle.style.stroke =
-                    "#ef4444";
-
-            }
-
-
-            if (timeLeft === 0) {
-
-                clearInterval(timer);
-
-                timeUp();
-
-            }
-
-        }, 1000);
-}
-
-
-// ==========================================
-// TIMER CIRCLE
-// ==========================================
-
-function updateTimerCircle() {
-
-    const circumference =
-        326.7;
-
-    const progressValue =
-        timeLeft / totalTime;
-
-    const offset =
-        circumference *
-        (1 - progressValue);
-
-    timerCircle.style.strokeDashoffset =
-        offset;
-}
-
-
-// ==========================================
-// TIME UP
-// ==========================================
-
-function timeUp() {
-
-    const buttons =
-        document.querySelectorAll(".option");
-
-    const correctAnswer =
-        questions[currentQuestion].answer;
-
-
-    buttons.forEach(button => {
-
-        button.disabled = true;
+            title.textContent =
+                "Welcome, Deepak 👋";
+        }
 
     });
 
 
-    buttons[correctAnswer]
-        .classList.add("correct");
+// Initial balance
 
-
-    wrongAnswers++;
-}
-
-
-// ==========================================
-// NEXT QUESTION
-// ==========================================
-
-nextButton.addEventListener(
-    "click",
-    () => {
-
-        currentQuestion++;
-
-        if (currentQuestion < totalQuestions) {
-
-            timerCircle.style.stroke =
-                "#6366f1";
-
-            loadQuestion();
-
-        }
-
-        else {
-
-            showResult();
-
-        }
-
-    }
-);
-
-
-// ==========================================
-// SHOW RESULT
-// ==========================================
-
-function showResult() {
-
-    clearInterval(timer);
-
-    app.style.display = "none";
-
-    resultContainer.style.display = "flex";
-
-
-    const correct =
-        score;
-
-    const wrong =
-        totalQuestions - correct;
-
-    const percentage =
-        Math.round(
-            (correct / totalQuestions) * 100
-        );
-
-
-    document.getElementById("score")
-        .textContent = correct;
-
-    document.getElementById("correct-count")
-        .textContent = correct;
-
-    document.getElementById("wrong-count")
-        .textContent = wrong;
-
-    document.getElementById("percentage")
-        .textContent = percentage + "%";
-
-
-    let message;
-
-
-    if (percentage >= 80) {
-
-        message =
-            "Excellent performance! You have a strong understanding of the concepts.";
-
-    }
-
-    else if (percentage >= 50) {
-
-        message =
-            "Good effort! Keep practicing to improve your score.";
-
-    }
-
-    else {
-
-        message =
-            "Keep learning and practicing. You can do better next time!";
-
-    }
-
-
-    document.getElementById("result-message")
-        .textContent = message;
-}
-
-
-// ==========================================
-// RESTART
-// ==========================================
-
-document.getElementById("restart-btn")
-    .addEventListener(
-        "click",
-        () => {
-
-            currentQuestion = 0;
-
-            score = 0;
-
-            wrongAnswers = 0;
-
-            resultContainer.style.display =
-                "none";
-
-            app.style.display =
-                "block";
-
-            timerCircle.style.stroke =
-                "#6366f1";
-
-            loadQuestion();
-
-        }
-    );
-
-
-// ==========================================
-// START QUIZ
-// ==========================================
-
-loadQuestion();
+updateBalance();
